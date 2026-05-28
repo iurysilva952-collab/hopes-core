@@ -1,4 +1,11 @@
-const { EmbedBuilder, AttachmentBuilder } = require('discord.js');
+const {
+    EmbedBuilder,
+    AttachmentBuilder,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle
+} = require('discord.js');
+
 const { createTranscript } = require('../utils/transcript');
 
 module.exports = {
@@ -23,35 +30,13 @@ module.exports = {
                 .setThumbnail(interaction.user.displayAvatarURL())
                 .setDescription('Um atendimento foi finalizado e o transcript foi gerado automaticamente.')
                 .addFields(
-                    {
-                        name: '👤 Fechado por',
-                        value: `${interaction.user}`,
-                        inline: true
-                    },
-                    {
-                        name: '📂 Canal',
-                        value: `#${channelName}`,
-                        inline: true
-                    },
-                    {
-                        name: '🔴 Status',
-                        value: 'Finalizado',
-                        inline: true
-                    },
-                    {
-                        name: '📄 Transcript',
-                        value: 'Arquivo anexado abaixo',
-                        inline: true
-                    },
-                    {
-                        name: '🕒 Horário',
-                        value: `<t:${Math.floor(Date.now() / 1000)}:F>`,
-                        inline: false
-                    }
+                    { name: '👤 Fechado por', value: `${interaction.user}`, inline: true },
+                    { name: '📂 Canal', value: `#${channelName}`, inline: true },
+                    { name: '🔴 Status', value: 'Finalizado', inline: true },
+                    { name: '📄 Transcript', value: 'Arquivo anexado abaixo', inline: true },
+                    { name: '🕒 Horário', value: `<t:${Math.floor(Date.now() / 1000)}:F>`, inline: false }
                 )
-                .setFooter({
-                    text: 'Hopes Core • Ticket Logs'
-                })
+                .setFooter({ text: 'Hopes Core • Ticket Logs' })
                 .setTimestamp();
 
             await logsChannel.send({
@@ -61,26 +46,27 @@ module.exports = {
         }
 
         const closeEmbed = new EmbedBuilder()
-            .setColor('#ff3b3b')
-            .setTitle('🔒 Ticket sendo finalizado')
+            .setColor('#ffd700')
+            .setTitle('⭐ Avaliação de Atendimento')
             .setDescription(
-`📄 O transcript foi gerado com sucesso.
+`Seu ticket foi finalizado.
 
-🔴 **Status:** Finalizado
-
-Este canal será fechado automaticamente em **5 segundos**.`
+Antes de encerrar o atendimento, avalie nosso serviço:`
             )
-            .setFooter({
-                text: 'Hopes Dev • Atendimento Encerrado'
-            })
+            .setFooter({ text: 'Hopes Dev • Avaliação' })
             .setTimestamp();
 
-        await interaction.reply({
-            embeds: [closeEmbed]
-        });
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('avaliacao_1').setLabel('⭐').setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('avaliacao_2').setLabel('⭐⭐').setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('avaliacao_3').setLabel('⭐⭐⭐').setStyle(ButtonStyle.Primary),
+            new ButtonBuilder().setCustomId('avaliacao_4').setLabel('⭐⭐⭐⭐').setStyle(ButtonStyle.Success),
+            new ButtonBuilder().setCustomId('avaliacao_5').setLabel('⭐⭐⭐⭐⭐').setStyle(ButtonStyle.Success)
+        );
 
-        setTimeout(async () => {
-            await interaction.channel.delete().catch(() => {});
-        }, 5000);
+        await interaction.reply({
+            embeds: [closeEmbed],
+            components: [row]
+        });
     }
 };

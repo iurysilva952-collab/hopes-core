@@ -63,7 +63,11 @@ client.once(Events.ClientReady, () => {
 client.on(Events.InteractionCreate, async interaction => {
     try {
         if (interaction.isButton() || interaction.isStringSelectMenu()) {
-            const component = client.buttons.get(interaction.customId);
+            let component = client.buttons.get(interaction.customId);
+
+            if (!component && interaction.customId.startsWith('avaliacao_')) {
+                component = client.buttons.get('avaliacao');
+            }
 
             if (!component) return;
 
