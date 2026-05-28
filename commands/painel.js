@@ -6,14 +6,31 @@ const {
     StringSelectMenuOptionBuilder
 } = require('discord.js');
 
+const config = require('../config/ticketConfig');
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('painel')
         .setDescription('Envia o painel de atendimento.'),
 
     async execute(interaction) {
+        const member = interaction.member;
+
+        const isStaff = member.roles.cache.some(role =>
+            config.roles.staffKeywords.some(keyword =>
+                role.name.toLowerCase().includes(keyword)
+            )
+        );
+
+        if (!isStaff) {
+            return interaction.reply({
+                content: '❌ Você não tem permissão para usar este comando.',
+                flags: 64
+            });
+        }
+
         const embed = new EmbedBuilder()
-            .setColor('#00b7ff')
+            .setColor(config.color)
             .setTitle('🎫 Central de Atendimento')
             .setDescription(
 `Bem-vindo(a) ao suporte oficial da Hopes Dev.

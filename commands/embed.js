@@ -1,8 +1,9 @@
 const {
     SlashCommandBuilder,
-    EmbedBuilder,
-    PermissionFlagsBits
+    EmbedBuilder
 } = require('discord.js');
+
+const config = require('../config/ticketConfig');
 
 module.exports = {
 
@@ -20,20 +21,34 @@ module.exports = {
                 .setName('descricao')
                 .setDescription('Descrição da embed')
                 .setRequired(true)
-        )
-        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+        ),
 
     async execute(interaction) {
+
+        const member = interaction.member;
+
+        const isStaff = member.roles.cache.some(role =>
+            config.roles.staffKeywords.some(keyword =>
+                role.name.toLowerCase().includes(keyword)
+            )
+        );
+
+        if (!isStaff) {
+            return interaction.reply({
+                content: '❌ Você não tem permissão para usar este comando.',
+                flags: 64
+            });
+        }
 
         const titulo = interaction.options.getString('titulo');
         const descricao = interaction.options.getString('descricao');
 
         const embed = new EmbedBuilder()
-            .setColor('#00b0f4')
+            .setColor(config.color)
             .setTitle(titulo)
             .setDescription(descricao)
             .setFooter({
-                text: 'Hopes Core • Premium System'
+                text: `${config.brand.botName} • Premium System`
             })
             .setTimestamp();
 
