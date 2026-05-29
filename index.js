@@ -8,7 +8,8 @@ const {
     GatewayIntentBits,
     Events,
     REST,
-    Routes
+    Routes,
+    ActivityType
 } = require('discord.js');
 
 const client = new Client({
@@ -58,6 +59,16 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
 client.once(Events.ClientReady, () => {
     console.log(`✅ Bot online como ${client.user.tag}`);
+
+    client.user.setPresence({
+        activities: [
+            {
+                name: '🎫 Hopes Dev Support',
+                type: ActivityType.Watching
+            }
+        ],
+        status: 'online'
+    });
 });
 
 client.on(Events.InteractionCreate, async interaction => {
