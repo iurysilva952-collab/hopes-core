@@ -6,6 +6,8 @@ const {
     ActionRowBuilder
 } = require('discord.js');
 
+const { addRating } = require('../utils/staffStats');
+
 module.exports = {
     customId: 'avaliacao',
 
@@ -51,10 +53,15 @@ module.exports = {
         }
 
         let atendente = 'Não informado';
+        let staffId = null;
 
         if (interaction.channel.topic && interaction.channel.topic.includes('claimedBy=')) {
-            const staffId = interaction.channel.topic.split('claimedBy=')[1].split(';')[0];
+            staffId = interaction.channel.topic.split('claimedBy=')[1].split(';')[0];
             atendente = `<@${staffId}>`;
+        }
+
+        if (staffId) {
+            addRating(staffId, nota);
         }
 
         const embed = new EmbedBuilder()
