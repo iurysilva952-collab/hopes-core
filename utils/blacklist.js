@@ -8,12 +8,15 @@ function readBlacklist() {
         fs.writeFileSync(blacklistPath, JSON.stringify([], null, 4));
     }
 
-    const data = fs.readFileSync(blacklistPath, 'utf-8');
+    const data = fs.readFileSync(blacklistPath, 'utf8');
     return JSON.parse(data || '[]');
 }
 
 function saveBlacklist(list) {
-    fs.writeFileSync(blacklistPath, JSON.stringify(list, null, 4));
+    fs.writeFileSync(
+        blacklistPath,
+        JSON.stringify(list, null, 4)
+    );
 }
 
 function isBlacklisted(userId) {
@@ -31,11 +34,15 @@ function addBlacklist(userId) {
 }
 
 function removeBlacklist(userId) {
-    const list = readBlacklist().filter(id => id !== userId);
+    const list = readBlacklist().filter(
+        id => id !== userId
+    );
+
     saveBlacklist(list);
 }
 
 module.exports = {
+    readBlacklist,
     isBlacklisted,
     addBlacklist,
     removeBlacklist
