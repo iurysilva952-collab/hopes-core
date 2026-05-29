@@ -8,6 +8,7 @@ const {
 } = require('discord.js');
 
 const { isOnCooldown } = require('../utils/cooldowns');
+const { isBlacklisted } = require('../utils/blacklist');
 const config = require('../config/ticketConfig');
 
 module.exports = {
@@ -15,6 +16,12 @@ module.exports = {
 
     async execute(interaction) {
         await interaction.deferReply({ flags: 64 });
+
+        if (isBlacklisted(interaction.user.id)) {
+            return interaction.editReply({
+                content: '🚫 Você está bloqueado de abrir tickets neste servidor.'
+            });
+        }
 
         const cooldown = isOnCooldown(
             interaction.user.id,
@@ -104,51 +111,18 @@ Seu atendimento foi iniciado com sucesso.
 Descreva abaixo sua solicitação e aguarde nossa equipe responder.`
             )
             .addFields(
-                {
-                    name: '📂 Categoria',
-                    value: tipos[selected],
-                    inline: true
-                },
-                {
-                    name: '👤 Cliente',
-                    value: `${interaction.user}`,
-                    inline: true
-                },
-                {
-                    name: '🟡 Status',
-                    value: 'Aguardando Atendimento',
-                    inline: true
-                }
+                { name: '📂 Categoria', value: tipos[selected], inline: true },
+                { name: '👤 Cliente', value: `${interaction.user}`, inline: true },
+                { name: '🟡 Status', value: 'Aguardando Atendimento', inline: true }
             )
-            .setFooter({
-                text: config.brand.footer
-            })
+            .setFooter({ text: config.brand.footer })
             .setTimestamp();
 
         const row = new ActionRowBuilder().addComponents(
-            new ButtonBuilder()
-                .setCustomId('claim_ticket')
-                .setLabel('Assumir Ticket')
-                .setEmoji('👤')
-                .setStyle(ButtonStyle.Primary),
-
-            new ButtonBuilder()
-                .setCustomId('add_user')
-                .setLabel('Add User')
-                .setEmoji('➕')
-                .setStyle(ButtonStyle.Success),
-
-            new ButtonBuilder()
-                .setCustomId('remove_user')
-                .setLabel('Remove User')
-                .setEmoji('➖')
-                .setStyle(ButtonStyle.Secondary),
-
-            new ButtonBuilder()
-                .setCustomId('fechar_ticket')
-                .setLabel('Fechar Ticket')
-                .setEmoji('🔒')
-                .setStyle(ButtonStyle.Danger)
+            new ButtonBuilder().setCustomId('claim_ticket').setLabel('Assumir Ticket').setEmoji('👤').setStyle(ButtonStyle.Primary),
+            new ButtonBuilder().setCustomId('add_user').setLabel('Add User').setEmoji('➕').setStyle(ButtonStyle.Success),
+            new ButtonBuilder().setCustomId('remove_user').setLabel('Remove User').setEmoji('➖').setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('fechar_ticket').setLabel('Fechar Ticket').setEmoji('🔒').setStyle(ButtonStyle.Danger)
         );
 
         await ticketChannel.send({
@@ -164,45 +138,17 @@ Descreva abaixo sua solicitação e aguarde nossa equipe responder.`
                 .setThumbnail(interaction.user.displayAvatarURL())
                 .setDescription('Um novo atendimento foi aberto no sistema.')
                 .addFields(
-                    {
-                        name: '👤 Cliente',
-                        value: `${interaction.user}`,
-                        inline: true
-                    },
-                    {
-                        name: '📂 Categoria',
-                        value: tipos[selected],
-                        inline: true
-                    },
-                    {
-                        name: '🟡 Status',
-                        value: 'Aguardando Atendimento',
-                        inline: true
-                    },
-                    {
-                        name: '📌 Canal',
-                        value: `${ticketChannel}`,
-                        inline: true
-                    },
-                    {
-                        name: '🆔 ID do usuário',
-                        value: interaction.user.id,
-                        inline: true
-                    },
-                    {
-                        name: '🕒 Horário',
-                        value: `<t:${Math.floor(Date.now() / 1000)}:F>`,
-                        inline: false
-                    }
+                    { name: '👤 Cliente', value: `${interaction.user}`, inline: true },
+                    { name: '📂 Categoria', value: tipos[selected], inline: true },
+                    { name: '🟡 Status', value: 'Aguardando Atendimento', inline: true },
+                    { name: '📌 Canal', value: `${ticketChannel}`, inline: true },
+                    { name: '🆔 ID do usuário', value: interaction.user.id, inline: true },
+                    { name: '🕒 Horário', value: `<t:${Math.floor(Date.now() / 1000)}:F>`, inline: false }
                 )
-                .setFooter({
-                    text: config.brand.logsFooter
-                })
+                .setFooter({ text: config.brand.logsFooter })
                 .setTimestamp();
 
-            await logsChannel.send({
-                embeds: [logEmbed]
-            });
+            await logsChannel.send({ embeds: [logEmbed] });
         }
 
         return interaction.editReply({
