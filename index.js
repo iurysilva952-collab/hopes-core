@@ -80,6 +80,10 @@ client.on(Events.InteractionCreate, async interaction => {
                 component = client.buttons.get('avaliacao');
             }
 
+            if (!component && interaction.customId.startsWith('sugestao_')) {
+                component = client.buttons.get('sugestao');
+            }
+
             if (!component) return;
 
             return await component.execute(interaction, client);
