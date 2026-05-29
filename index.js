@@ -74,6 +74,16 @@ client.on(Events.InteractionCreate, async interaction => {
             return await component.execute(interaction, client);
         }
 
+        if (interaction.isModalSubmit()) {
+            if (interaction.customId.startsWith('avaliacao_modal_')) {
+                const component = client.buttons.get('avaliacao');
+
+                if (!component) return;
+
+                return await component.executeModal(interaction, client);
+            }
+        }
+
         if (!interaction.isChatInputCommand()) return;
 
         const command = client.commands.get(interaction.commandName);

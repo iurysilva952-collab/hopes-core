@@ -32,6 +32,7 @@ module.exports = {
         const newChannelName = `${oldChannelName}-claim`;
 
         await channel.setName(newChannelName).catch(() => {});
+        await channel.setTopic(`claimedBy=${interaction.user.id};`).catch(() => {});
 
         const embed = new EmbedBuilder()
             .setColor(config.color)
