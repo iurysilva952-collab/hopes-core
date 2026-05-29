@@ -14,19 +14,19 @@ module.exports = {
         .addStringOption(option =>
             option
                 .setName('servico')
-                .setDescription('Serviço solicitado.')
+                .setDescription('Ex: Bot de Tickets Premium')
                 .setRequired(true)
         )
         .addStringOption(option =>
             option
                 .setName('valor')
-                .setDescription('Valor do serviço. Ex: R$ 150,00')
+                .setDescription('Ex: R$ 500,00')
                 .setRequired(true)
         )
         .addStringOption(option =>
             option
                 .setName('prazo')
-                .setDescription('Prazo de entrega. Ex: 3 dias úteis')
+                .setDescription('Ex: 9 dias úteis')
                 .setRequired(true)
         )
         .addStringOption(option =>
@@ -60,14 +60,45 @@ module.exports = {
 
         const embed = new EmbedBuilder()
             .setColor(config.color)
-            .setTitle('💰 Orçamento Hopes Dev')
-            .setDescription('Proposta personalizada gerada pela equipe Hopes Dev.')
+            .setTitle('💎 Proposta Comercial — Hopes Dev')
+            .setDescription(
+`Olá, ${cliente}!
+
+Segue abaixo a proposta personalizada preparada pela equipe **Hopes Dev**.
+
+━━━━━━━━━━━━━━━━━━`
+            )
             .addFields(
-                { name: '👤 Cliente', value: `${cliente}`, inline: true },
-                { name: '🛠️ Serviço', value: servico, inline: true },
-                { name: '💵 Valor', value: valor, inline: true },
-                { name: '⏳ Prazo', value: prazo, inline: true },
-                { name: '📝 Observações', value: observacoes, inline: false }
+                {
+                    name: '👤 Cliente',
+                    value: `${cliente}`,
+                    inline: true
+                },
+                {
+                    name: '🛠️ Serviço Solicitado',
+                    value: servico,
+                    inline: true
+                },
+                {
+                    name: '💵 Investimento',
+                    value: valor,
+                    inline: true
+                },
+                {
+                    name: '⏳ Prazo de Entrega',
+                    value: prazo,
+                    inline: true
+                },
+                {
+                    name: '📝 Observações',
+                    value: observacoes,
+                    inline: false
+                },
+                {
+                    name: '📌 Status',
+                    value: 'Aguardando aprovação do cliente',
+                    inline: false
+                }
             )
             .setFooter({
                 text: 'Hopes Dev • Premium Discord Solutions'
