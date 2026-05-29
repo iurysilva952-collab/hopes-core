@@ -33,6 +33,7 @@ module.exports = {
 
     async executeModal(interaction) {
         const nota = interaction.customId.split('_')[2];
+        const estrelas = '⭐'.repeat(Number(nota));
         const comentario = interaction.fields.getTextInputValue('comentario') || 'Sem comentário.';
 
         const avaliacoesChannel = interaction.guild.channels.cache.find(channel =>
@@ -59,8 +60,17 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setColor('#00b7ff')
             .setTitle('🏆 Feedback Recebido')
-            .setDescription('Um cliente avaliou o atendimento da Hopes Dev.')
+            .setDescription(
+`A Hopes Dev recebeu uma nova avaliação de atendimento.
+
+━━━━━━━━━━━━━━━━━━`
+            )
             .addFields(
+                {
+                    name: '⭐ Avaliação',
+                    value: `${estrelas}\n**Nota:** ${nota}/5`,
+                    inline: false
+                },
                 {
                     name: '👤 Cliente',
                     value: `${interaction.user}`,
@@ -70,11 +80,6 @@ module.exports = {
                     name: '🛠️ Atendente',
                     value: atendente,
                     inline: true
-                },
-                {
-                    name: '⭐ Avaliação',
-                    value: `${'⭐'.repeat(Number(nota))} (${nota}/5)`,
-                    inline: false
                 },
                 {
                     name: '💬 Comentário',
@@ -88,7 +93,7 @@ module.exports = {
                 }
             )
             .setFooter({
-                text: 'Hopes Dev • Avaliações'
+                text: 'Hopes Dev • Feedback System'
             })
             .setTimestamp();
 
@@ -97,7 +102,7 @@ module.exports = {
         });
 
         await interaction.reply({
-            content: `✅ Obrigado pela avaliação! Nota enviada: ${'⭐'.repeat(Number(nota))}`,
+            content: `✅ Obrigado pela avaliação! Nota enviada: ${estrelas}`,
             flags: 64
         });
 
