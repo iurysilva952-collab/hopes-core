@@ -75,13 +75,23 @@ client.on(Events.InteractionCreate, async interaction => {
         }
 
         if (interaction.isModalSubmit()) {
+            let component = null;
+
             if (interaction.customId.startsWith('avaliacao_modal_')) {
-                const component = client.buttons.get('avaliacao');
-
-                if (!component) return;
-
-                return await component.executeModal(interaction, client);
+                component = client.buttons.get('avaliacao');
             }
+
+            if (interaction.customId === 'add_user_modal') {
+                component = client.buttons.get('add_user_modal');
+            }
+
+            if (interaction.customId === 'remove_user_modal') {
+                component = client.buttons.get('remove_user_modal');
+            }
+
+            if (!component || !component.executeModal) return;
+
+            return await component.executeModal(interaction, client);
         }
 
         if (!interaction.isChatInputCommand()) return;

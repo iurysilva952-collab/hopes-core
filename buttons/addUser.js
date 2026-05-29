@@ -1,10 +1,29 @@
+const {
+    ModalBuilder,
+    TextInputBuilder,
+    TextInputStyle,
+    ActionRowBuilder
+} = require('discord.js');
+
 module.exports = {
     customId: 'add_user',
 
     async execute(interaction) {
-        await interaction.reply({
-            content: '➕ Para adicionar alguém ao ticket, use:\n`/adduser @usuário`\n\nVamos criar esse comando no próximo passo.',
-            flags: 64
-        });
+        const modal = new ModalBuilder()
+            .setCustomId('add_user_modal')
+            .setTitle('Adicionar Usuário');
+
+        const userIdInput = new TextInputBuilder()
+            .setCustomId('user_id')
+            .setLabel('ID do usuário')
+            .setPlaceholder('Ex: 123456789012345678')
+            .setStyle(TextInputStyle.Short)
+            .setRequired(true);
+
+        const row = new ActionRowBuilder().addComponents(userIdInput);
+
+        modal.addComponents(row);
+
+        await interaction.showModal(modal);
     }
 };
