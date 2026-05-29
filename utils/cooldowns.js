@@ -13,4 +13,12 @@ function isOnCooldown(userId, key, seconds) {
     return 0;
 }
 
-module.exports = { isOnCooldown };
+function setCooldown(userId, key, seconds) {
+    const cooldownKey = `${key}-${userId}`;
+    cooldowns.set(cooldownKey, Date.now() + seconds * 1000);
+}
+
+module.exports = {
+    isOnCooldown,
+    setCooldown
+};

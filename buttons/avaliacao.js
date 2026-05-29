@@ -7,6 +7,7 @@ const {
 } = require('discord.js');
 
 const { addRating } = require('../utils/staffStats');
+const { setCooldown } = require('../utils/cooldowns');
 
 module.exports = {
     customId: 'avaliacao',
@@ -112,6 +113,8 @@ module.exports = {
             content: `✅ Obrigado pela avaliação! Nota enviada: ${estrelas}`,
             flags: 64
         });
+
+        setCooldown(interaction.user.id, 'ticket_create', 300);
 
         setTimeout(async () => {
             await interaction.channel.delete().catch(() => {});
