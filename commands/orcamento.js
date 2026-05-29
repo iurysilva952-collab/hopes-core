@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const config = require('../config/ticketConfig');
+const { getCoupon } = require('../utils/coupons');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -34,6 +35,12 @@ module.exports = {
                 .setName('observacoes')
                 .setDescription('Observações adicionais.')
                 .setRequired(false)
+        )
+        .addStringOption(option =>
+            option
+                .setName('cupom')
+                .setDescription('Cupom de desconto. Ex: HOPES10')
+                .setRequired(false)
         ),
 
     async execute(interaction) {
@@ -57,6 +64,22 @@ module.exports = {
         const valor = interaction.options.getString('valor');
         const prazo = interaction.options.getString('prazo');
         const observacoes = interaction.options.getString('observacoes') || 'Sem observações.';
+        const cupomCode = interaction.options.getString('cupom');
+
+        let cupomTexto = 'Nenhum cupom aplicado.';
+
+        if (cupomCode) {
+            const coupon = getCoupon(cupomCode);
+
+            if (!coupon) {
+                return interaction.reply({
+                    content: `❌ O cupom **${cupomCode.toUpperCase()}** não existe.`,
+                    flags: 64
+                });
+            }
+
+            cupomTexto = `🎁 **${cupomCode.toUpperCase()}** — ${coupon.discount}% de desconto`;
+        }
 
         const embed = new EmbedBuilder()
             .setColor(config.color)
@@ -88,6 +111,11 @@ Segue abaixo a proposta personalizada preparada pela equipe **Hopes Dev**.
                     name: '⏳ Prazo de Entrega',
                     value: prazo,
                     inline: true
+                },
+                {
+                    name: '🎁 Cupom',
+                    value: cupomTexto,
+                    inline: false
                 },
                 {
                     name: '📝 Observações',
