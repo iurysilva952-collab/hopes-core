@@ -2,6 +2,22 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { registerSale, updateSaleStatus, getSales } = require('../utils/sales');
 const config = require('../config/ticketConfig');
 
+function findLogsChannel(guild) {
+    return guild.channels.cache.find(channel =>
+        channel.name.toLowerCase().includes('logs')
+    );
+}
+
+async function sendSaleLog(guild, embed) {
+    const logsChannel = findLogsChannel(guild);
+
+    if (logsChannel) {
+        await logsChannel.send({
+            embeds: [embed]
+        });
+    }
+}
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('venda')
@@ -104,6 +120,22 @@ module.exports = {
                 .setFooter({ text: 'Hopes Core • Sales System' })
                 .setTimestamp();
 
+            const logEmbed = new EmbedBuilder()
+                .setColor(status === 'pago' ? '#00b7ff' : '#ffaa00')
+                .setTitle('💰 Venda Registrada')
+                .addFields(
+                    { name: '🆔 ID', value: sale.id, inline: true },
+                    { name: '👤 Cliente', value: `${cliente}`, inline: true },
+                    { name: '🛠️ Serviço', value: servico, inline: false },
+                    { name: '💵 Valor', value: `R$ ${Number(valor).toFixed(2)}`, inline: true },
+                    { name: '📌 Status', value: status === 'pago' ? '✅ Pago' : '⏳ Pendente', inline: true },
+                    { name: '🛡️ Registrado por', value: `${interaction.user}`, inline: true }
+                )
+                .setFooter({ text: 'Hopes Core • Finance Logs' })
+                .setTimestamp();
+
+            await sendSaleLog(interaction.guild, logEmbed);
+
             return interaction.reply({
                 embeds: [embed],
                 flags: 64
@@ -135,6 +167,22 @@ module.exports = {
                 )
                 .setFooter({ text: 'Hopes Core • Sales Update' })
                 .setTimestamp();
+
+            const logEmbed = new EmbedBuilder()
+                .setColor(status === 'pago' ? '#00b7ff' : '#ffaa00')
+                .setTitle('🔄 Venda Atualizada')
+                .addFields(
+                    { name: '🆔 ID', value: sale.id, inline: true },
+                    { name: '👤 Cliente', value: `<@${sale.clientId}>`, inline: true },
+                    { name: '🛠️ Serviço', value: sale.service, inline: false },
+                    { name: '💵 Valor', value: `R$ ${sale.value.toFixed(2)}`, inline: true },
+                    { name: '📌 Novo Status', value: status === 'pago' ? '✅ Pago' : '⏳ Pendente', inline: true },
+                    { name: '🛡️ Atualizado por', value: `${interaction.user}`, inline: true }
+                )
+                .setFooter({ text: 'Hopes Core • Finance Logs' })
+                .setTimestamp();
+
+            await sendSaleLog(interaction.guild, logEmbed);
 
             return interaction.reply({
                 embeds: [embed],
