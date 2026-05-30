@@ -92,6 +92,10 @@ client.on(Events.InteractionCreate, async interaction => {
         if (interaction.isModalSubmit()) {
             let component = null;
 
+            if (interaction.customId.startsWith('ticket_form_')) {
+                component = client.buttons.get('ticket_select');
+            }
+
             if (interaction.customId.startsWith('avaliacao_modal_')) {
                 component = client.buttons.get('avaliacao');
             }

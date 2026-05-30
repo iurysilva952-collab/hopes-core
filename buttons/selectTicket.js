@@ -4,7 +4,10 @@ const {
     EmbedBuilder,
     ActionRowBuilder,
     ButtonBuilder,
-    ButtonStyle
+    ButtonStyle,
+    ModalBuilder,
+    TextInputBuilder,
+    TextInputStyle
 } = require('discord.js');
 
 const { isOnCooldown } = require('../utils/cooldowns');
@@ -15,6 +18,43 @@ module.exports = {
     customId: 'ticket_select',
 
     async execute(interaction) {
+        const selected = interaction.values[0];
+
+        const modal = new ModalBuilder()
+            .setCustomId(`ticket_form_${selected}`)
+            .setTitle('Formulário de Atendimento');
+
+        const servicoInput = new TextInputBuilder()
+            .setCustomId('servico')
+            .setLabel('Qual serviço você deseja?')
+            .setPlaceholder('Ex: Bot Discord, setup de servidor, design...')
+            .setStyle(TextInputStyle.Short)
+            .setRequired(true);
+
+        const orcamentoInput = new TextInputBuilder()
+            .setCustomId('orcamento')
+            .setLabel('Qual seu orçamento disponível?')
+            .setPlaceholder('Ex: R$ 300,00')
+            .setStyle(TextInputStyle.Short)
+            .setRequired(true);
+
+        const descricaoInput = new TextInputBuilder()
+            .setCustomId('descricao')
+            .setLabel('Explique seu projeto ou dúvida')
+            .setPlaceholder('Descreva com detalhes o que você precisa.')
+            .setStyle(TextInputStyle.Paragraph)
+            .setRequired(true);
+
+        modal.addComponents(
+            new ActionRowBuilder().addComponents(servicoInput),
+            new ActionRowBuilder().addComponents(orcamentoInput),
+            new ActionRowBuilder().addComponents(descricaoInput)
+        );
+
+        await interaction.showModal(modal);
+    },
+
+    async executeModal(interaction) {
         await interaction.deferReply({ flags: 64 });
 
         if (isBlacklisted(interaction.user.id)) {
@@ -35,8 +75,12 @@ module.exports = {
             });
         }
 
-        const selected = interaction.values[0];
+        const selected = interaction.customId.replace('ticket_form_', '');
         const tipos = config.categories;
+
+        const servico = interaction.fields.getTextInputValue('servico');
+        const orcamento = interaction.fields.getTextInputValue('orcamento');
+        const descricao = interaction.fields.getTextInputValue('descricao');
 
         const guild = interaction.guild;
         const member = interaction.member;
@@ -108,12 +152,15 @@ module.exports = {
 
 Seu atendimento foi iniciado com sucesso.
 
-Descreva abaixo sua solicitação e aguarde nossa equipe responder.`
+Nossa equipe já recebeu as informações do seu formulário.`
             )
             .addFields(
                 { name: '📂 Categoria', value: tipos[selected], inline: true },
                 { name: '👤 Cliente', value: `${interaction.user}`, inline: true },
-                { name: '🟡 Status', value: 'Aguardando Atendimento', inline: true }
+                { name: '🟡 Status', value: 'Aguardando Atendimento', inline: true },
+                { name: '🛠️ Serviço Desejado', value: servico, inline: false },
+                { name: '💰 Orçamento Disponível', value: orcamento, inline: false },
+                { name: '📝 Descrição do Projeto', value: descricao, inline: false }
             )
             .setFooter({ text: config.brand.footer })
             .setTimestamp();
@@ -136,13 +183,13 @@ Descreva abaixo sua solicitação e aguarde nossa equipe responder.`
                 .setColor(config.color)
                 .setTitle('🎫 Ticket Criado')
                 .setThumbnail(interaction.user.displayAvatarURL())
-                .setDescription('Um novo atendimento foi aberto no sistema.')
+                .setDescription('Um novo atendimento foi aberto com formulário.')
                 .addFields(
                     { name: '👤 Cliente', value: `${interaction.user}`, inline: true },
                     { name: '📂 Categoria', value: tipos[selected], inline: true },
-                    { name: '🟡 Status', value: 'Aguardando Atendimento', inline: true },
                     { name: '📌 Canal', value: `${ticketChannel}`, inline: true },
-                    { name: '🆔 ID do usuário', value: interaction.user.id, inline: true },
+                    { name: '🛠️ Serviço', value: servico, inline: false },
+                    { name: '💰 Orçamento', value: orcamento, inline: false },
                     { name: '🕒 Horário', value: `<t:${Math.floor(Date.now() / 1000)}:F>`, inline: false }
                 )
                 .setFooter({ text: config.brand.logsFooter })
