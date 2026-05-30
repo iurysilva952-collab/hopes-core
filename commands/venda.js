@@ -1,11 +1,12 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { registerSale, getSales } = require('../utils/sales');
+const { registerSale, updateSaleStatus, getSales } = require('../utils/sales');
 const config = require('../config/ticketConfig');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('venda')
         .setDescription('Gerenciar vendas da Hopes Dev.')
+
         .addSubcommand(subcommand =>
             subcommand
                 .setName('registrar')
@@ -30,9 +31,30 @@ module.exports = {
                         )
                 )
         )
+
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('atualizar')
+                .setDescription('Atualiza o status de uma venda.')
+                .addStringOption(option =>
+                    option.setName('id').setDescription('ID da venda.').setRequired(true)
+                )
+                .addStringOption(option =>
+                    option
+                        .setName('status')
+                        .setDescription('Novo status da venda.')
+                        .setRequired(true)
+                        .addChoices(
+                            { name: 'Pago', value: 'pago' },
+                            { name: 'Pendente', value: 'pendente' }
+                        )
+                )
+        )
+
         .addSubcommand(subcommand =>
             subcommand.setName('resumo').setDescription('Mostra o resumo financeiro.')
         )
+
         .addSubcommand(subcommand =>
             subcommand.setName('listar').setDescription('Lista as últimas vendas.')
         ),
@@ -80,6 +102,38 @@ module.exports = {
                     { name: '📌 Status', value: status === 'pago' ? '✅ Pago' : '⏳ Pendente', inline: true }
                 )
                 .setFooter({ text: 'Hopes Core • Sales System' })
+                .setTimestamp();
+
+            return interaction.reply({
+                embeds: [embed],
+                flags: 64
+            });
+        }
+
+        if (subcommand === 'atualizar') {
+            const id = interaction.options.getString('id');
+            const status = interaction.options.getString('status');
+
+            const sale = updateSaleStatus(id, status);
+
+            if (!sale) {
+                return interaction.reply({
+                    content: '❌ Venda não encontrada. Verifique o ID informado.',
+                    flags: 64
+                });
+            }
+
+            const embed = new EmbedBuilder()
+                .setColor(status === 'pago' ? '#00b7ff' : '#ffaa00')
+                .setTitle('🔄 Venda Atualizada')
+                .addFields(
+                    { name: '🆔 ID', value: sale.id, inline: true },
+                    { name: '👤 Cliente', value: `<@${sale.clientId}>`, inline: true },
+                    { name: '🛠️ Serviço', value: sale.service, inline: false },
+                    { name: '💵 Valor', value: `R$ ${sale.value.toFixed(2)}`, inline: true },
+                    { name: '📌 Novo Status', value: status === 'pago' ? '✅ Pago' : '⏳ Pendente', inline: true }
+                )
+                .setFooter({ text: 'Hopes Core • Sales Update' })
                 .setTimestamp();
 
             return interaction.reply({

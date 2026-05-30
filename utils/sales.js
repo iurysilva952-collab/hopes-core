@@ -26,10 +26,26 @@ function registerSale(clientId, service, value, status, createdBy) {
         value: Number(value),
         status,
         createdBy,
-        createdAt: Date.now()
+        createdAt: Date.now(),
+        updatedAt: null
     };
 
     sales.push(sale);
+    saveSales(sales);
+
+    return sale;
+}
+
+function updateSaleStatus(id, status) {
+    const sales = readSales();
+
+    const sale = sales.find(item => item.id === id);
+
+    if (!sale) return null;
+
+    sale.status = status;
+    sale.updatedAt = Date.now();
+
     saveSales(sales);
 
     return sale;
@@ -41,5 +57,6 @@ function getSales() {
 
 module.exports = {
     registerSale,
+    updateSaleStatus,
     getSales
 };
