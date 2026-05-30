@@ -12,6 +12,7 @@ const {
 
 const { isOnCooldown } = require('../utils/cooldowns');
 const { isBlacklisted } = require('../utils/blacklist');
+const { registerTicket } = require('../utils/clientHistory');
 const config = require('../config/ticketConfig');
 
 module.exports = {
@@ -113,6 +114,8 @@ module.exports = {
                 content: `❌ Você já possui um ticket aberto: ${existingTicket}`
             });
         }
+
+        registerTicket(interaction.user.id);
 
         const ticketChannel = await guild.channels.create({
             name: `${selected}-${safeUsername}`,
