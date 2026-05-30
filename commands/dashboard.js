@@ -3,6 +3,7 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getStats } = require('../utils/staffStats');
 const { readBlacklist } = require('../utils/blacklist');
 const { getAllCoupons } = require('../utils/coupons');
+const { getSales } = require('../utils/sales');
 const config = require('../config/ticketConfig');
 
 module.exports = {
@@ -29,6 +30,7 @@ module.exports = {
         const stats = getStats();
         const blacklist = readBlacklist();
         const coupons = getAllCoupons();
+        const sales = getSales();
 
         const statsEntries = Object.entries(stats);
 
@@ -51,6 +53,14 @@ module.exports = {
                     return b.tickets - a.tickets;
                 })[0]
             : null;
+
+        const totalSales = sales.reduce((acc, sale) => acc + sale.value, 0);
+        const paidSales = sales
+            .filter(sale => sale.status === 'pago')
+            .reduce((acc, sale) => acc + sale.value, 0);
+        const pendingSales = sales
+            .filter(sale => sale.status === 'pendente')
+            .reduce((acc, sale) => acc + sale.value, 0);
 
         const embed = new EmbedBuilder()
             .setColor(config.color)
@@ -78,6 +88,26 @@ module.exports = {
                         ? `<@${melhorStaff.staffId}>\n⭐ ${melhorStaff.media.toFixed(1)}/5 • 🎫 ${melhorStaff.tickets} tickets`
                         : 'Nenhum staff registrado.',
                     inline: false
+                },
+                {
+                    name: '💰 Total Vendido',
+                    value: `R$ ${totalSales.toFixed(2)}`,
+                    inline: true
+                },
+                {
+                    name: '✅ Pago',
+                    value: `R$ ${paidSales.toFixed(2)}`,
+                    inline: true
+                },
+                {
+                    name: '⏳ Pendente',
+                    value: `R$ ${pendingSales.toFixed(2)}`,
+                    inline: true
+                },
+                {
+                    name: '🧾 Vendas Registradas',
+                    value: `${sales.length}`,
+                    inline: true
                 },
                 {
                     name: '🚫 Blacklist',
