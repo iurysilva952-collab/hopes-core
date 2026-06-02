@@ -51,10 +51,11 @@ module.exports = {
         const servico = interaction.options.getString('servico');
         const valor = interaction.options.getString('valor');
         const prazo = interaction.options.getString('prazo');
-        const observacoes = interaction.options.getString('observacoes') || 'Sem observações.';
+        const observacoes = interaction.options.getString('observacoes') || 'Sem observações adicionais.';
         const cupomCode = interaction.options.getString('cupom');
 
         let cupomTexto = 'Nenhum cupom aplicado.';
+        let descontoTexto = 'Sem desconto aplicado.';
 
         if (cupomCode) {
             const coupon = getCoupon(cupomCode);
@@ -66,27 +67,67 @@ module.exports = {
                 });
             }
 
-            cupomTexto = `🎁 **${cupomCode.toUpperCase()}** — ${coupon.discount}% de desconto`;
+            cupomTexto = `🎁 **${cupomCode.toUpperCase()}**`;
+            descontoTexto = `${coupon.discount}% de desconto aplicado.`;
         }
 
         const embed = new EmbedBuilder()
             .setColor(config.color)
             .setTitle('💎 Proposta Comercial — Hopes Dev')
+            .setThumbnail(cliente.displayAvatarURL())
             .setDescription(
 `Olá, ${cliente}!
 
-Segue abaixo a proposta personalizada preparada pela equipe **Hopes Dev**.
+A equipe **Hopes Dev** preparou uma proposta personalizada para o seu projeto.
 
 ━━━━━━━━━━━━━━━━━━`
             )
             .addFields(
-                { name: '👤 Cliente', value: `${cliente}`, inline: true },
-                { name: '🛠️ Serviço Solicitado', value: servico, inline: true },
-                { name: '💵 Investimento', value: valor, inline: true },
-                { name: '⏳ Prazo de Entrega', value: prazo, inline: true },
-                { name: '🎁 Cupom', value: cupomTexto, inline: false },
-                { name: '📝 Observações', value: observacoes, inline: false },
-                { name: '📌 Status', value: 'Aguardando aprovação do cliente', inline: false }
+                {
+                    name: '👤 Cliente',
+                    value: `${cliente}`,
+                    inline: true
+                },
+                {
+                    name: '🛠️ Serviço',
+                    value: servico,
+                    inline: true
+                },
+                {
+                    name: '💵 Investimento',
+                    value: valor,
+                    inline: true
+                },
+                {
+                    name: '⏳ Prazo de Entrega',
+                    value: prazo,
+                    inline: true
+                },
+                {
+                    name: '🎁 Cupom',
+                    value: cupomTexto,
+                    inline: true
+                },
+                {
+                    name: '📉 Desconto',
+                    value: descontoTexto,
+                    inline: true
+                },
+                {
+                    name: '📝 Observações',
+                    value: observacoes,
+                    inline: false
+                },
+                {
+                    name: '📌 Status',
+                    value: 'Aguardando aprovação do cliente.',
+                    inline: false
+                },
+                {
+                    name: '✅ Próximo passo',
+                    value: 'Caso aprove a proposta, responda neste atendimento para iniciarmos o desenvolvimento.',
+                    inline: false
+                }
             )
             .setFooter({
                 text: 'Hopes Dev • Premium Discord Solutions'
@@ -99,13 +140,43 @@ Segue abaixo a proposta personalizada preparada pela equipe **Hopes Dev**.
             const logEmbed = new EmbedBuilder()
                 .setColor(config.color)
                 .setTitle('💎 Orçamento Gerado')
+                .setDescription('Uma nova proposta comercial foi criada pela equipe.')
                 .addFields(
-                    { name: '👤 Cliente', value: `${cliente}`, inline: true },
-                    { name: '🛠️ Serviço', value: servico, inline: true },
-                    { name: '💵 Valor', value: valor, inline: true },
-                    { name: '⏳ Prazo', value: prazo, inline: true },
-                    { name: '🎁 Cupom', value: cupomTexto, inline: false },
-                    { name: '🛡️ Gerado por', value: `${interaction.user}`, inline: true }
+                    {
+                        name: '👤 Cliente',
+                        value: `${cliente}`,
+                        inline: true
+                    },
+                    {
+                        name: '🛠️ Serviço',
+                        value: servico,
+                        inline: true
+                    },
+                    {
+                        name: '💵 Valor',
+                        value: valor,
+                        inline: true
+                    },
+                    {
+                        name: '⏳ Prazo',
+                        value: prazo,
+                        inline: true
+                    },
+                    {
+                        name: '🎁 Cupom',
+                        value: cupomTexto,
+                        inline: true
+                    },
+                    {
+                        name: '📉 Desconto',
+                        value: descontoTexto,
+                        inline: true
+                    },
+                    {
+                        name: '🛡️ Gerado por',
+                        value: `${interaction.user}`,
+                        inline: true
+                    }
                 )
                 .setFooter({
                     text: 'Hopes Core • Budget Logs'
