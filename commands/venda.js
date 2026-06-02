@@ -1,10 +1,11 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { registerSale, updateSaleStatus, getSales } = require('../utils/sales');
+const { getGoal, setGoal } = require('../utils/meta');
 const config = require('../config/ticketConfig');
 
 function findLogsChannel(guild) {
     return guild.channels.cache.find(channel =>
-        channel.name.toLowerCase().includes('logs')
+        channel.name.toLowerCase().includes('logs-vendas')
     );
 }
 
@@ -16,6 +17,14 @@ async function sendSaleLog(guild, embed) {
             embeds: [embed]
         });
     }
+}
+
+function createProgressBar(percent) {
+    const totalBlocks = 10;
+    const filledBlocks = Math.round((Math.min(percent, 100) / 100) * totalBlocks);
+    const emptyBlocks = totalBlocks - filledBlocks;
+
+    return '█'.repeat(filledBlocks) + '░'.repeat(emptyBlocks);
 }
 
 module.exports = {
@@ -73,6 +82,22 @@ module.exports = {
 
         .addSubcommand(subcommand =>
             subcommand.setName('listar').setDescription('Lista as últimas vendas.')
+        )
+
+        .addSubcommand(subcommand =>
+            subcommand.setName('meta').setDescription('Mostra a meta financeira mensal.')
+        )
+
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('definir-meta')
+                .setDescription('Define a meta financeira mensal.')
+                .addNumberOption(option =>
+                    option
+                        .setName('valor')
+                        .setDescription('Valor da meta mensal. Ex: 1000')
+                        .setRequired(true)
+                )
         ),
 
     async execute(interaction) {
@@ -191,15 +216,15 @@ module.exports = {
         }
 
         if (subcommand === 'resumo') {
-            const sales = getSales();
+            const sales = getSales() || [];
 
-            const total = sales.reduce((acc, sale) => acc + sale.value, 0);
+            const total = sales.reduce((acc, sale) => acc + Number(sale.value || 0), 0);
             const paid = sales
                 .filter(sale => sale.status === 'pago')
-                .reduce((acc, sale) => acc + sale.value, 0);
+                .reduce((acc, sale) => acc + Number(sale.value || 0), 0);
             const pending = sales
                 .filter(sale => sale.status === 'pendente')
-                .reduce((acc, sale) => acc + sale.value, 0);
+                .reduce((acc, sale) => acc + Number(sale.value || 0), 0);
 
             const embed = new EmbedBuilder()
                 .setColor(config.color)
@@ -220,7 +245,7 @@ module.exports = {
         }
 
         if (subcommand === 'listar') {
-            const sales = getSales().slice(-10).reverse();
+            const sales = (getSales() || []).slice(-10).reverse();
 
             if (!sales.length) {
                 return interaction.reply({
@@ -235,7 +260,7 @@ module.exports = {
                 return `**ID:** ${sale.id}
 👤 Cliente: <@${sale.clientId}>
 🛠️ Serviço: ${sale.service}
-💵 Valor: R$ ${sale.value.toFixed(2)}
+💵 Valor: R$ ${Number(sale.value || 0).toFixed(2)}
 📌 Status: ${status}`;
             }).join('\n\n');
 
@@ -244,6 +269,67 @@ module.exports = {
                 .setTitle('🧾 Últimas Vendas')
                 .setDescription(description)
                 .setFooter({ text: 'Hopes Core • Sales List' })
+                .setTimestamp();
+
+            return interaction.reply({
+                embeds: [embed],
+                flags: 64
+            });
+        }
+
+        if (subcommand === 'meta') {
+            const sales = getSales() || [];
+            const goal = getGoal();
+
+            const paid = sales
+                .filter(sale => sale.status === 'pago')
+                .reduce((acc, sale) => acc + Number(sale.value || 0), 0);
+
+            const percent = goal > 0 ? (paid / goal) * 100 : 0;
+            const progressBar = createProgressBar(percent);
+
+            const status = percent >= 100
+                ? '🟢 Meta atingida'
+                : percent >= 60
+                    ? '🟡 Em andamento'
+                    : '🔴 Abaixo da meta';
+
+            const embed = new EmbedBuilder()
+                .setColor(percent >= 100 ? '#00b7ff' : '#ffaa00')
+                .setTitle('🎯 Meta Financeira Mensal')
+                .addFields(
+                    { name: '🎯 Meta', value: `R$ ${goal.toFixed(2)}`, inline: true },
+                    { name: '💰 Faturado Pago', value: `R$ ${paid.toFixed(2)}`, inline: true },
+                    { name: '📊 Progresso', value: `${percent.toFixed(1)}%`, inline: true },
+                    { name: '📈 Barra', value: `\`${progressBar}\``, inline: false },
+                    { name: '📌 Status', value: status, inline: false }
+                )
+                .setFooter({ text: 'Hopes Core • Financial Goal' })
+                .setTimestamp();
+
+            return interaction.reply({
+                embeds: [embed],
+                flags: 64
+            });
+        }
+
+        if (subcommand === 'definir-meta') {
+            const valor = interaction.options.getNumber('valor');
+
+            if (valor <= 0) {
+                return interaction.reply({
+                    content: '❌ A meta precisa ser maior que zero.',
+                    flags: 64
+                });
+            }
+
+            setGoal(valor);
+
+            const embed = new EmbedBuilder()
+                .setColor(config.color)
+                .setTitle('🎯 Meta Financeira Atualizada')
+                .setDescription(`A nova meta mensal foi definida como **R$ ${valor.toFixed(2)}**.`)
+                .setFooter({ text: 'Hopes Core • Financial Goal' })
                 .setTimestamp();
 
             return interaction.reply({
