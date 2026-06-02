@@ -27,15 +27,15 @@ module.exports = {
             });
         }
 
-        const stats = getStats();
-        const blacklist = readBlacklist();
-        const coupons = getAllCoupons();
-        const sales = getSales();
+        const stats = getStats() || {};
+        const blacklist = readBlacklist() || [];
+        const coupons = getAllCoupons() || {};
+        const sales = getSales() || [];
 
         const statsEntries = Object.entries(stats);
 
-        const totalTickets = statsEntries.reduce((acc, [, data]) => acc + data.tickets, 0);
-        const totalRating = statsEntries.reduce((acc, [, data]) => acc + data.totalRating, 0);
+        const totalTickets = statsEntries.reduce((acc, [, data]) => acc + (data.tickets || 0), 0);
+        const totalRating = statsEntries.reduce((acc, [, data]) => acc + (data.totalRating || 0), 0);
 
         const mediaGeral = totalTickets > 0
             ? (totalRating / totalTickets).toFixed(1)
@@ -45,7 +45,7 @@ module.exports = {
             ? statsEntries
                 .map(([staffId, data]) => ({
                     staffId,
-                    tickets: data.tickets,
+                    tickets: data.tickets || 0,
                     media: data.tickets > 0 ? data.totalRating / data.tickets : 0
                 }))
                 .sort((a, b) => {
@@ -54,70 +54,72 @@ module.exports = {
                 })[0]
             : null;
 
-        const totalSales = sales.reduce((acc, sale) => acc + sale.value, 0);
-        const paidSales = sales
-            .filter(sale => sale.status === 'pago')
-            .reduce((acc, sale) => acc + sale.value, 0);
-        const pendingSales = sales
-            .filter(sale => sale.status === 'pendente')
-            .reduce((acc, sale) => acc + sale.value, 0);
+        const paidSalesList = sales.filter(sale => sale.status === 'pago');
+        const pendingSalesList = sales.filter(sale => sale.status === 'pendente');
+
+        const totalSales = sales.reduce((acc, sale) => acc + Number(sale.value || 0), 0);
+        const paidSales = paidSalesList.reduce((acc, sale) => acc + Number(sale.value || 0), 0);
+        const pendingSales = pendingSalesList.reduce((acc, sale) => acc + Number(sale.value || 0), 0);
+
+        const ticketStatus = totalTickets > 0
+            ? '🟢 Sistema ativo'
+            : '🟡 Aguardando avaliações';
+
+        const salesStatus = sales.length > 0
+            ? '🟢 Vendas registradas'
+            : '🟡 Nenhuma venda registrada';
 
         const embed = new EmbedBuilder()
             .setColor(config.color)
             .setTitle('📊 Hopes Core Dashboard')
-            .setDescription('Resumo geral dos principais sistemas da Hopes Dev.')
+            .setDescription(
+                'Painel geral de controle da **Hopes Dev**.\n' +
+                'Aqui estão os principais dados do bot e da operação.'
+            )
             .addFields(
                 {
-                    name: '🎫 Tickets Avaliados',
-                    value: `${totalTickets}`,
-                    inline: true
-                },
-                {
-                    name: '⭐ Média Geral',
-                    value: `${mediaGeral}/5`,
-                    inline: true
-                },
-                {
-                    name: '👥 Staff Registrado',
-                    value: `${statsEntries.length}`,
-                    inline: true
-                },
-                {
-                    name: '🏆 Melhor Staff',
-                    value: melhorStaff
-                        ? `<@${melhorStaff.staffId}>\n⭐ ${melhorStaff.media.toFixed(1)}/5 • 🎫 ${melhorStaff.tickets} tickets`
-                        : 'Nenhum staff registrado.',
+                    name: '🎫 Atendimento',
+                    value:
+                        `**Tickets avaliados:** ${totalTickets}\n` +
+                        `**Média geral:** ${mediaGeral}/5\n` +
+                        `**Status:** ${ticketStatus}`,
                     inline: false
                 },
                 {
-                    name: '💰 Total Vendido',
-                    value: `R$ ${totalSales.toFixed(2)}`,
-                    inline: true
+                    name: '👥 Equipe',
+                    value:
+                        `**Staff registrado:** ${statsEntries.length}\n` +
+                        `**Melhor staff:** ${
+                            melhorStaff && melhorStaff.tickets > 0
+                                ? `<@${melhorStaff.staffId}> — ⭐ ${melhorStaff.media.toFixed(1)}/5 • 🎫 ${melhorStaff.tickets} tickets`
+                                : 'Nenhum staff registrado ainda.'
+                        }`,
+                    inline: false
                 },
                 {
-                    name: '✅ Pago',
-                    value: `R$ ${paidSales.toFixed(2)}`,
-                    inline: true
+                    name: '💰 Financeiro',
+                    value:
+                        `**Total vendido:** R$ ${totalSales.toFixed(2)}\n` +
+                        `**Pago:** R$ ${paidSales.toFixed(2)}\n` +
+                        `**Pendente:** R$ ${pendingSales.toFixed(2)}\n` +
+                        `**Vendas registradas:** ${sales.length}\n` +
+                        `**Status:** ${salesStatus}`,
+                    inline: false
                 },
                 {
-                    name: '⏳ Pendente',
-                    value: `R$ ${pendingSales.toFixed(2)}`,
-                    inline: true
-                },
-                {
-                    name: '🧾 Vendas Registradas',
-                    value: `${sales.length}`,
+                    name: '🎁 Cupons',
+                    value: `**Cupons ativos:** ${Object.keys(coupons).length}`,
                     inline: true
                 },
                 {
                     name: '🚫 Blacklist',
-                    value: `${blacklist.length} usuários`,
+                    value: `**Usuários bloqueados:** ${blacklist.length}`,
                     inline: true
                 },
                 {
-                    name: '🎁 Cupons Ativos',
-                    value: `${Object.keys(coupons).length}`,
-                    inline: true
+                    name: '⚙️ Sistema',
+                    value: '**Versão:** Hopes Core v1.0\n**Hospedagem:** Railway\n**Status:** Online',
+                    inline: false
                 }
             )
             .setFooter({
