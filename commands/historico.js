@@ -39,21 +39,54 @@ module.exports = {
             });
         }
 
+        const tickets = history.tickets || 0;
+        const ratings = history.ratings || 0;
+
         const lastTicket = history.lastTicket
             ? `<t:${Math.floor(history.lastTicket / 1000)}:F>`
             : 'Não registrado';
+
+        const statusCliente = tickets >= 5
+            ? '🟢 Cliente recorrente'
+            : tickets >= 2
+                ? '🟡 Cliente em acompanhamento'
+                : '🔵 Novo cliente';
 
         const embed = new EmbedBuilder()
             .setColor(config.color)
             .setTitle('📋 Histórico do Cliente')
             .setThumbnail(cliente.displayAvatarURL())
+            .setDescription(`Resumo de atendimento de ${cliente}.`)
             .addFields(
-                { name: '👤 Cliente', value: `${cliente}`, inline: true },
-                { name: '🎫 Tickets Abertos', value: `${history.tickets}`, inline: true },
-                { name: '⭐ Avaliações Feitas', value: `${history.ratings}`, inline: true },
-                { name: '🕒 Último Ticket', value: lastTicket, inline: false }
+                {
+                    name: '👤 Cliente',
+                    value: `${cliente}\n\`${cliente.id}\``,
+                    inline: false
+                },
+                {
+                    name: '🎫 Tickets Abertos',
+                    value: `${tickets}`,
+                    inline: true
+                },
+                {
+                    name: '⭐ Avaliações Feitas',
+                    value: `${ratings}`,
+                    inline: true
+                },
+                {
+                    name: '📌 Status',
+                    value: statusCliente,
+                    inline: true
+                },
+                {
+                    name: '🕒 Último Ticket',
+                    value: lastTicket,
+                    inline: false
+                }
             )
-            .setFooter({ text: 'Hopes Core • Client History' })
+            .setFooter({
+                text: 'Hopes Core • Client History'
+            })
             .setTimestamp();
 
         await interaction.reply({
