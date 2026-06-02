@@ -21,6 +21,12 @@ module.exports = {
                 .setName('descricao')
                 .setDescription('Descrição da embed')
                 .setRequired(true)
+        )
+        .addStringOption(option =>
+            option
+                .setName('rodape')
+                .setDescription('Rodapé da embed')
+                .setRequired(false)
         ),
 
     async execute(interaction) {
@@ -42,13 +48,14 @@ module.exports = {
 
         const titulo = interaction.options.getString('titulo');
         const descricao = interaction.options.getString('descricao');
+        const rodape = interaction.options.getString('rodape');
 
         const embed = new EmbedBuilder()
             .setColor(config.color)
             .setTitle(titulo)
             .setDescription(descricao)
             .setFooter({
-                text: `${config.brand.botName} • Premium System`
+                text: rodape || `${config.brand.botName} • Premium System`
             })
             .setTimestamp();
 
