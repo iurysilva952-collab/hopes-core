@@ -12,6 +12,8 @@ const {
     ActivityType
 } = require('discord.js');
 
+const { backupDatabase } = require('./utils/backup');
+
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -69,6 +71,12 @@ client.once(Events.ClientReady, () => {
         ],
         status: 'online'
     });
+
+    backupDatabase();
+
+    setInterval(() => {
+        backupDatabase();
+    }, 1000 * 60 * 60 * 24);
 });
 
 client.on(Events.InteractionCreate, async interaction => {
