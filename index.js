@@ -13,6 +13,7 @@ const {
 } = require('discord.js');
 
 const { backupDatabase } = require('./utils/backup');
+const { cleanOldTranscripts } = require('./utils/cleanTranscripts');
 
 const client = new Client({
     intents: [
@@ -73,9 +74,14 @@ client.once(Events.ClientReady, () => {
     });
 
     backupDatabase();
+    cleanOldTranscripts();
 
     setInterval(() => {
         backupDatabase();
+    }, 1000 * 60 * 60 * 24);
+
+    setInterval(() => {
+        cleanOldTranscripts();
     }, 1000 * 60 * 60 * 24);
 });
 
