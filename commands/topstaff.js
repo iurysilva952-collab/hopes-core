@@ -23,7 +23,7 @@ module.exports = {
             });
         }
 
-        const stats = getStats();
+        const stats = getStats() || {};
         const entries = Object.entries(stats);
 
         if (entries.length === 0) {
@@ -35,45 +35,66 @@ module.exports = {
 
         const ranking = entries
             .map(([staffId, data]) => {
-                const media = data.tickets > 0
-                    ? Number(data.totalRating / data.tickets)
+                const tickets = data.tickets || 0;
+                const totalRating = data.totalRating || 0;
+
+                const media = tickets > 0
+                    ? Number(totalRating / tickets)
                     : 0;
 
                 return {
                     staffId,
-                    tickets: data.tickets,
+                    tickets,
                     media
                 };
             })
+            .filter(staff => staff.tickets > 0)
             .sort((a, b) => {
                 if (b.media !== a.media) return b.media - a.media;
                 return b.tickets - a.tickets;
             })
             .slice(0, 10);
 
+        if (ranking.length === 0) {
+            return interaction.reply({
+                content: '🏆 Ainda não existem atendentes avaliados no ranking.',
+                flags: 64
+            });
+        }
+
         const medals = ['🥇', '🥈', '🥉'];
 
         const description = ranking
             .map((staff, index) => {
-                const medal = medals[index] || `#${index + 1}`;
+                const position = medals[index] || `#${index + 1}`;
 
-                return `${medal} **<@${staff.staffId}>**
-🎫 Tickets avaliados: **${staff.tickets}**
-⭐ Média: **${staff.media.toFixed(1)}/5**`;
+                return `${position} **<@${staff.staffId}>**\n` +
+                    `🎫 Tickets avaliados: **${staff.tickets}**\n` +
+                    `⭐ Média: **${staff.media.toFixed(1)}/5**`;
             })
             .join('\n\n');
+
+        const bestStaff = ranking[0];
 
         const embed = new EmbedBuilder()
             .setColor(config.color)
             .setTitle('🏆 Ranking da Equipe')
             .setDescription(description)
+            .addFields(
+                {
+                    name: '👑 Destaque atual',
+                    value: `<@${bestStaff.staffId}> com **${bestStaff.media.toFixed(1)}/5** em **${bestStaff.tickets}** tickets avaliados.`,
+                    inline: false
+                }
+            )
             .setFooter({
                 text: 'Hopes Core • Staff Ranking'
             })
             .setTimestamp();
 
         await interaction.reply({
-            embeds: [embed]
+            embeds: [embed],
+            flags: 64
         });
     }
 };
