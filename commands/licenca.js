@@ -67,11 +67,15 @@ module.exports = {
             const embed = new EmbedBuilder()
                 .setColor('#00b7ff')
                 .setTitle('🔑 Licença Criada')
+                .setDescription('Uma nova licença foi gerada para o cliente.')
+                .setThumbnail(cliente.displayAvatarURL())
                 .addFields(
                     { name: '👤 Cliente', value: `${cliente}`, inline: true },
                     { name: '📦 Produto', value: produto, inline: true },
+                    { name: '🟢 Status', value: 'Ativa', inline: true },
                     { name: '🔐 Chave', value: `\`${key}\``, inline: false },
-                    { name: '🟢 Status', value: 'Ativa', inline: true }
+                    { name: '🛠️ Criada por', value: `${interaction.user}`, inline: true },
+                    { name: '🕒 Criada em', value: `<t:${Math.floor(Date.now() / 1000)}:F>`, inline: true }
                 )
                 .setFooter({ text: 'Hopes Core • License System' })
                 .setTimestamp();
@@ -93,14 +97,17 @@ module.exports = {
                 });
             }
 
+            const status = license.active ? '🟢 Ativa' : '🔴 Revogada';
+
             const embed = new EmbedBuilder()
                 .setColor(license.active ? '#00b7ff' : '#ff3b3b')
                 .setTitle('🔎 Verificação de Licença')
+                .setDescription('Informações registradas para esta licença.')
                 .addFields(
                     { name: '🔐 Chave', value: `\`${chave}\``, inline: false },
                     { name: '👤 Cliente', value: `<@${license.ownerId}>`, inline: true },
                     { name: '📦 Produto', value: license.product, inline: true },
-                    { name: '📌 Status', value: license.active ? '🟢 Ativa' : '🔴 Revogada', inline: true },
+                    { name: '📌 Status', value: status, inline: true },
                     { name: '🛠️ Criada por', value: `<@${license.createdBy}>`, inline: true }
                 )
                 .setFooter({ text: 'Hopes Core • License System' })
@@ -114,17 +121,39 @@ module.exports = {
 
         if (subcommand === 'revogar') {
             const chave = interaction.options.getString('chave').toUpperCase();
-            const success = revokeLicense(chave);
+            const license = getLicense(chave);
 
-            if (!success) {
+            if (!license) {
                 return interaction.reply({
                     content: '❌ Licença não encontrada.',
                     flags: 64
                 });
             }
 
+            const success = revokeLicense(chave);
+
+            if (!success) {
+                return interaction.reply({
+                    content: '❌ Não foi possível revogar esta licença.',
+                    flags: 64
+                });
+            }
+
+            const embed = new EmbedBuilder()
+                .setColor('#ff3b3b')
+                .setTitle('🔴 Licença Revogada')
+                .setDescription('A licença foi revogada com sucesso.')
+                .addFields(
+                    { name: '🔐 Chave', value: `\`${chave}\``, inline: false },
+                    { name: '👤 Cliente', value: `<@${license.ownerId}>`, inline: true },
+                    { name: '📦 Produto', value: license.product, inline: true },
+                    { name: '🛡️ Revogada por', value: `${interaction.user}`, inline: true }
+                )
+                .setFooter({ text: 'Hopes Core • License System' })
+                .setTimestamp();
+
             return interaction.reply({
-                content: `🔴 Licença \`${chave}\` foi revogada com sucesso.`,
+                embeds: [embed],
                 flags: 64
             });
         }
