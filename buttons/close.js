@@ -9,13 +9,17 @@ const {
 const { createTranscript } = require('../utils/transcript');
 const { generateTranscriptHTML } = require('../utils/transcriptHTML');
 
+function findTicketLogsChannel(guild) {
+    return guild.channels.cache.find(channel =>
+        channel.name.toLowerCase().includes('logs-tickets')
+    );
+}
+
 module.exports = {
     customId: 'fechar_ticket',
 
     async execute(interaction) {
-        const logsChannel = interaction.guild.channels.cache.find(channel =>
-            channel.name.toLowerCase().includes('logs')
-        );
+        const logsChannel = findTicketLogsChannel(interaction.guild);
 
         const channelName = interaction.channel.name;
 
