@@ -7,6 +7,7 @@ const {
 } = require('discord.js');
 
 const { createTranscript } = require('../utils/transcript');
+const { generateTranscriptHTML } = require('../utils/transcriptHTML');
 
 module.exports = {
     customId: 'fechar_ticket',
@@ -17,10 +18,17 @@ module.exports = {
         );
 
         const channelName = interaction.channel.name;
+
         const transcriptBuffer = await createTranscript(interaction.channel);
 
         const transcriptFile = new AttachmentBuilder(transcriptBuffer, {
             name: `transcript-${channelName}.txt`
+        });
+
+        const transcriptHTMLPath = await generateTranscriptHTML(interaction.channel);
+
+        const transcriptHTMLFile = new AttachmentBuilder(transcriptHTMLPath, {
+            name: `transcript-${channelName}.html`
         });
 
         if (logsChannel) {
@@ -28,12 +36,13 @@ module.exports = {
                 .setColor('#ff3b3b')
                 .setTitle('🔒 Ticket Finalizado')
                 .setThumbnail(interaction.user.displayAvatarURL())
-                .setDescription('Um atendimento foi finalizado e o transcript foi gerado automaticamente.')
+                .setDescription('Um atendimento foi finalizado e os transcripts foram gerados automaticamente.')
                 .addFields(
                     { name: '👤 Fechado por', value: `${interaction.user}`, inline: true },
                     { name: '📂 Canal', value: `#${channelName}`, inline: true },
                     { name: '🔴 Status', value: 'Finalizado', inline: true },
-                    { name: '📄 Transcript', value: 'Arquivo anexado abaixo', inline: true },
+                    { name: '📄 Transcript TXT', value: 'Arquivo .txt anexado', inline: true },
+                    { name: '🌐 Transcript HTML', value: 'Arquivo .html anexado', inline: true },
                     { name: '🕒 Horário', value: `<t:${Math.floor(Date.now() / 1000)}:F>`, inline: false }
                 )
                 .setFooter({ text: 'Hopes Core • Ticket Logs' })
@@ -41,7 +50,7 @@ module.exports = {
 
             await logsChannel.send({
                 embeds: [logEmbed],
-                files: [transcriptFile]
+                files: [transcriptFile, transcriptHTMLFile]
             });
         }
 
