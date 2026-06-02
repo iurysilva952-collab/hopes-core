@@ -12,7 +12,8 @@ module.exports = {
 
         const isStaff = member.roles.cache.some(role =>
             config.roles.staffKeywords.some(keyword =>
-                role.name.toLowerCase().includes(keyword))
+                role.name.toLowerCase().includes(keyword)
+            )
         );
 
         if (!isStaff) {
@@ -22,7 +23,7 @@ module.exports = {
             });
         }
 
-        const stats = getStats();
+        const stats = getStats() || {};
         const entries = Object.entries(stats);
 
         if (entries.length === 0) {
@@ -32,13 +33,39 @@ module.exports = {
             });
         }
 
-        const description = entries
+        const sortedEntries = entries.sort(([, a], [, b]) => {
+            const mediaA = a.tickets > 0 ? a.totalRating / a.tickets : 0;
+            const mediaB = b.tickets > 0 ? b.totalRating / b.tickets : 0;
+
+            if (mediaB !== mediaA) return mediaB - mediaA;
+            return (b.tickets || 0) - (a.tickets || 0);
+        });
+
+        const totalTickets = sortedEntries.reduce((acc, [, data]) => acc + (data.tickets || 0), 0);
+        const totalRating = sortedEntries.reduce((acc, [, data]) => acc + (data.totalRating || 0), 0);
+
+        const mediaGeral = totalTickets > 0
+            ? (totalRating / totalTickets).toFixed(1)
+            : '0.0';
+
+        const description = sortedEntries
             .map(([staffId, data], index) => {
-                const media = data.tickets > 0
-                    ? (data.totalRating / data.tickets).toFixed(1)
+                const tickets = data.tickets || 0;
+                const totalRatingStaff = data.totalRating || 0;
+
+                const media = tickets > 0
+                    ? (totalRatingStaff / tickets).toFixed(1)
                     : '0.0';
 
-                return `**${index + 1}. <@${staffId}>**\n🎫 Tickets avaliados: ${data.tickets}\n⭐ Média: ${media}/5`;
+                let medal = '🔹';
+
+                if (index === 0) medal = '🥇';
+                if (index === 1) medal = '🥈';
+                if (index === 2) medal = '🥉';
+
+                return `${medal} **${index + 1}. <@${staffId}>**\n` +
+                    `🎫 Tickets avaliados: **${tickets}**\n` +
+                    `⭐ Média: **${media}/5**`;
             })
             .join('\n\n');
 
@@ -46,13 +73,24 @@ module.exports = {
             .setColor(config.color)
             .setTitle('📊 Estatísticas da Equipe')
             .setDescription(description)
+            .addFields(
+                {
+                    name: '📌 Resumo Geral',
+                    value:
+                        `**Tickets avaliados:** ${totalTickets}\n` +
+                        `**Média geral:** ${mediaGeral}/5\n` +
+                        `**Staff registrados:** ${sortedEntries.length}`,
+                    inline: false
+                }
+            )
             .setFooter({
                 text: 'Hopes Core • Staff Stats'
             })
             .setTimestamp();
 
         await interaction.reply({
-            embeds: [embed]
+            embeds: [embed],
+            flags: 64
         });
     }
 };
