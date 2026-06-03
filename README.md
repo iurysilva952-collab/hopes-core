@@ -1,82 +1,163 @@
 # 🤖 Hopes Core
 
-Sistema profissional de tickets para Discord desenvolvido pela Hopes Dev.
+Sistema profissional de atendimento, vendas e gerenciamento para Discord desenvolvido pela **Hopes Dev**.
 
 ---
 
-## ⚡ Funcionalidades
+# 🚀 Sobre o Projeto
 
-- 🎫 Sistema de tickets automatizado
-- 👤 Claim system
-- ➕ Add/Remove User
-- 📄 Transcript automático
-- 📂 Categorias de atendimento
-- 🛠️ Logs completos
-- 🔒 Atendimento privado
-- 🎨 Embeds premium
-- ⚡ Cooldown anti-spam
-- 🧩 Sistema modular
+O **Hopes Core** é um bot premium criado para automatizar atendimento, vendas, suporte e gestão interna de servidores Discord.
+
+Desenvolvido com foco em performance, organização e experiência profissional para clientes e equipes.
 
 ---
 
-## 🛠️ Tecnologias
+# ⚡ Funcionalidades
 
-- Node.js
-- Discord.js v14
-- JavaScript
-- dotenv
-- Slash Commands
+## 🎫 Sistema de Tickets
 
----
-
-## 🎨 Design
-
-- Dark UI
-- Neon Blue
-- Tech Style
-- Premium Layout
+* Painel de atendimento
+* Categorias personalizadas
+* Modal de abertura
+* Claim System
+* Add User
+* Remove User
+* Fechamento de tickets
+* Avaliação por estrelas
+* Histórico de atendimentos
 
 ---
 
-## 📸 Showcase
+## 📄 Transcripts
 
-### 🎫 Painel de Atendimento
-> Sistema moderno com select menu.
-
-### 👤 Atendimento Assumido
-> Claim system profissional para equipe.
-
-### 📄 Logs & Transcript
-> Logs automáticos e transcript completo.
+* Transcript TXT
+* Transcript HTML
+* Logs automáticos
+* Registro completo do atendimento
 
 ---
 
-## 💎 Hopes Dev
----
+## 👥 Gestão de Equipe
 
-# 📸 Preview
-
-## 🎫 Painel de Atendimento
-
-<img width="100%" src="https://cdn.discordapp.com/attachments/1508114164395016303/1509009088955154562/bot1.png?ex=6a18467a&is=6a16f4fa&hm=3c3fb58dc22aeb84862b8b51769c846204525b40e625d05afac0096bcf7f39ea&">
+* Estatísticas individuais
+* Ranking da equipe
+* Melhor atendente
+* Dashboard administrativo
 
 ---
 
-## 🎫 Ticket Aberto
+## 💰 Sistema Financeiro
 
-<img width="100%" src="https://cdn.discordapp.com/attachments/1508114164395016303/1509009379041738762/bot2.png?ex=6a1846c0&is=6a16f540&hm=d057088a7a216557e8913c47fb822fbc1328f6f56bdb0f0136ed43a58ba701f8&">
+* Registro de vendas
+* Atualização de status
+* Resumo financeiro
+* Histórico de vendas
+* Meta financeira mensal
+* Dashboard financeiro
 
 ---
 
-## 👤 Atendimento Assumido
+## 🎁 Sistema de Cupons
 
-<img width="100%" src="https://cdn.discordapp.com/attachments/1508114164395016303/1509009436033814688/bot3.png?ex=6a1846cd&is=6a16f54d&hm=f2094e6651c6b40762199719b9e62945a008c21e8f6a62b4c857b9ad14143d38&">
+* Criar cupom
+* Remover cupom
+* Ver cupom
+* Listar cupons ativos
 
 ---
 
-## 📄 Logs & Transcript
+## 🔑 Sistema de Licenças
 
-<img width="100%" src="https://cdn.discordapp.com/attachments/1508114164395016303/1509009480455553256/bot4.png?ex=6a1846d8&is=6a16f558&hm=a5e603c8d22b59058f2c3a21f8cc60fac545eb523db316ca667a8887a499793c&">
+* Criar licença
+* Verificar licença
+* Revogar licença
+* Histórico completo
 
+---
 
-Premium Discord Solutions.
+## 🚫 Segurança
+
+* Blacklist
+* Controle de permissões
+* Cooldowns
+* Logs automáticos
+
+---
+
+# 📊 Painéis
+
+### Dashboard Geral
+
+* Tickets
+* Avaliações
+* Equipe
+* Financeiro
+* Cupons
+* Licenças
+
+### Painel Administrativo
+
+* Estatísticas completas
+* Melhor staff
+* Meta financeira
+* Sistema operacional do bot
+
+---
+
+# 🛠️ Tecnologias
+
+* Node.js
+* Discord.js v14
+* JavaScript
+* dotenv
+* JSON Database
+* GitHub
+* Railway
+
+---
+
+# 🎨 Identidade Visual
+
+* Dark Theme
+* Neon Blue
+* Premium Layout
+* Tech Design
+* Hopes Dev Branding
+
+---
+
+# 📂 Logs Separados
+
+* 🎫 logs-tickets
+* 💰 logs-vendas
+* 🔑 logs-licencas
+* 🎁 logs-cupons
+* 📋 logs-geral
+
+---
+
+# 📈 Status Atual
+
+### Versão
+
+Hopes Core v1.1
+
+### Status
+
+🟢 Estável
+
+### Ambiente
+
+🟢 Produção
+
+### Testado
+
+🟢 Todos os sistemas operacionais
+
+---
+
+# 👑 Desenvolvido por
+
+## Hopes Dev
+
+Premium Discord Solutions
