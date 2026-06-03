@@ -10,6 +10,12 @@ const {
     revokeLicense
 } = require('../utils/licenses');
 
+function findLicenseLogsChannel(guild) {
+    return guild.channels.cache.find(channel =>
+        channel.name.toLowerCase().includes('logs-licencas')
+    );
+}
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('licenca')
@@ -79,6 +85,29 @@ module.exports = {
                 )
                 .setFooter({ text: 'Hopes Core • License System' })
                 .setTimestamp();
+
+            const logsChannel = findLicenseLogsChannel(interaction.guild);
+
+            if (logsChannel) {
+                const logEmbed = new EmbedBuilder()
+                    .setColor('#00b7ff')
+                    .setTitle('🔑 Licença Criada')
+                    .addFields(
+                        { name: '👤 Cliente', value: `${cliente}`, inline: true },
+                        { name: '📦 Produto', value: produto, inline: true },
+                        { name: '🔐 Chave', value: `\`${key}\``, inline: false },
+                        { name: '🛠️ Criada por', value: `${interaction.user}`, inline: true },
+                        { name: '🕒 Criada em', value: `<t:${Math.floor(Date.now() / 1000)}:F>`, inline: true }
+                    )
+                    .setFooter({
+                        text: 'Hopes Core • License Logs'
+                    })
+                    .setTimestamp();
+
+                await logsChannel.send({
+                    embeds: [logEmbed]
+                });
+            }
 
             return interaction.reply({
                 embeds: [embed],
@@ -151,6 +180,29 @@ module.exports = {
                 )
                 .setFooter({ text: 'Hopes Core • License System' })
                 .setTimestamp();
+
+            const logsChannel = findLicenseLogsChannel(interaction.guild);
+
+            if (logsChannel) {
+                const logEmbed = new EmbedBuilder()
+                    .setColor('#ff3b3b')
+                    .setTitle('🔴 Licença Revogada')
+                    .addFields(
+                        { name: '🔐 Chave', value: `\`${chave}\``, inline: false },
+                        { name: '👤 Cliente', value: `<@${license.ownerId}>`, inline: true },
+                        { name: '📦 Produto', value: license.product, inline: true },
+                        { name: '🛡️ Revogada por', value: `${interaction.user}`, inline: true },
+                        { name: '🕒 Revogada em', value: `<t:${Math.floor(Date.now() / 1000)}:F>`, inline: true }
+                    )
+                    .setFooter({
+                        text: 'Hopes Core • License Logs'
+                    })
+                    .setTimestamp();
+
+                await logsChannel.send({
+                    embeds: [logEmbed]
+                });
+            }
 
             return interaction.reply({
                 embeds: [embed],
