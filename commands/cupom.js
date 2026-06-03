@@ -11,6 +11,12 @@ const {
     getAllCoupons
 } = require('../utils/coupons');
 
+function findCouponLogsChannel(guild) {
+    return guild.channels.cache.find(channel =>
+        channel.name.toLowerCase().includes('logs-cupons')
+    );
+}
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('cupom')
@@ -108,6 +114,44 @@ module.exports = {
                 })
                 .setTimestamp();
 
+            const logsChannel = findCouponLogsChannel(interaction.guild);
+
+            if (logsChannel) {
+                const logEmbed = new EmbedBuilder()
+                    .setColor('#00b7ff')
+                    .setTitle('🎁 Cupom Criado')
+                    .addFields(
+                        {
+                            name: '🏷️ Código',
+                            value: `\`${codigo}\``,
+                            inline: true
+                        },
+                        {
+                            name: '💸 Desconto',
+                            value: `${desconto}%`,
+                            inline: true
+                        },
+                        {
+                            name: '🛠️ Criado por',
+                            value: `${interaction.user}`,
+                            inline: true
+                        },
+                        {
+                            name: '🕒 Criado em',
+                            value: `<t:${Math.floor(Date.now() / 1000)}:F>`,
+                            inline: false
+                        }
+                    )
+                    .setFooter({
+                        text: 'Hopes Core • Coupon Logs'
+                    })
+                    .setTimestamp();
+
+                await logsChannel.send({
+                    embeds: [logEmbed]
+                });
+            }
+
             return interaction.reply({
                 embeds: [embed],
                 flags: 64
@@ -152,6 +196,44 @@ module.exports = {
                     text: 'Hopes Core • Coupon System'
                 })
                 .setTimestamp();
+
+            const logsChannel = findCouponLogsChannel(interaction.guild);
+
+            if (logsChannel) {
+                const logEmbed = new EmbedBuilder()
+                    .setColor('#ff3b3b')
+                    .setTitle('🗑️ Cupom Removido')
+                    .addFields(
+                        {
+                            name: '🏷️ Código',
+                            value: `\`${codigo}\``,
+                            inline: true
+                        },
+                        {
+                            name: '💸 Desconto',
+                            value: `${coupon.discount}%`,
+                            inline: true
+                        },
+                        {
+                            name: '🛡️ Removido por',
+                            value: `${interaction.user}`,
+                            inline: true
+                        },
+                        {
+                            name: '🕒 Removido em',
+                            value: `<t:${Math.floor(Date.now() / 1000)}:F>`,
+                            inline: false
+                        }
+                    )
+                    .setFooter({
+                        text: 'Hopes Core • Coupon Logs'
+                    })
+                    .setTimestamp();
+
+                await logsChannel.send({
+                    embeds: [logEmbed]
+                });
+            }
 
             return interaction.reply({
                 embeds: [embed],
